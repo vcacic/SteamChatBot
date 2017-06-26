@@ -28,10 +28,13 @@ var connector = new builder.ChatConnector({
   appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
  server.post('/api/messages', connector.listen());
- server.post('/fb', function create(req, res, next) {
-   res.send(req.body);
-   return next();
- });
+ app.get('/fb', function(req, res) {
+  if (req.query['hub.verify_token'] === 'st34m_cl0v3r_t0k3n') {
+     res.send(req.query['hub.challenge']);
+   } else {
+     res.send('Error, wrong validation token');
+   }
+});
 //server.post('/fb', connector.listen());
 
 var bot = new builder.UniversalBot(connector, function(session) {
