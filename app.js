@@ -29,11 +29,17 @@ var connector = new builder.ChatConnector({
 });
  server.post('/api/messages', connector.listen());
  server.get('/fb', function(req, res) {
+   console.log(req);
   if (req.query['hub.verify_token'] === 'st34m_cl0v3r_t0k3n') {
      res.send(req.query['hub.challenge']);
    } else {
      res.send('Error, wrong validation token');
    }
+});
+
+server.post('/fb',  function(req,res){
+  console.log(req);
+  res.send(req.body);
 });
 //server.post('/fb', connector.listen());
 
