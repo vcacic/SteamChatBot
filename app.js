@@ -28,6 +28,10 @@ var connector = new builder.ChatConnector({
   appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
  server.post('/api/messages', connector.listen());
+ server.post('/hello', function create(req, res, next) {
+   rres.send(req.body);
+   return next();
+ });
 //server.post('/fb', connector.listen());
 
 var bot = new builder.UniversalBot(connector, function(session) {
