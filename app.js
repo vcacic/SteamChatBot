@@ -28,7 +28,7 @@ var connector = new builder.ChatConnector({
   appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
  server.post('/api/messages', connector.listen());
- server.get('/fb', function(req, res) {
+ server.get('/webhook/', function(req, res) {
    console.log(req);
   if (req.query['hub.verify_token'] === 'st34m_cl0v3r_t0k3n') {
      res.send(req.query['hub.challenge']);
@@ -37,10 +37,6 @@ var connector = new builder.ChatConnector({
    }
 });
 
-server.post('/fb',  function(req,res){
-  console.log(req);
-  res.send(req.body);
-});
 //server.post('/fb', connector.listen());
 
 var bot = new builder.UniversalBot(connector, function(session) {
