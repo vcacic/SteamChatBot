@@ -29,7 +29,7 @@ var connector = new builder.ChatConnector({
 });
  server.post('/api/messages', connector.listen());
  server.post('/fb', function create(req, res, next) {
-   rres.send(req.body);
+   res.send(req.body);
    return next();
  });
 //server.post('/fb', connector.listen());
