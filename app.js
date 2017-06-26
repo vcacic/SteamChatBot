@@ -17,10 +17,9 @@ var Game = function() {
   this.tags = null;
 };
 
-
 // Setup Restify Server
 var server = restify.createServer();
-server.listen(process.env.port || process.env.PORT || 3978, function() {
+server.listen(process.env.port || process.env.PORT || 80, function() {
   console.log('%s listening to %s', server.name, server.url);
 });
 // Create connector and listen for messages
@@ -28,7 +27,8 @@ var connector = new builder.ChatConnector({
   appId: process.env.MICROSOFT_APP_ID,
   appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
-server.post('/api/messages', connector.listen());
+// server.post('/api/messages', connector.listen());
+server.post('/fb', connector.listen());
 
 var bot = new builder.UniversalBot(connector, function(session) {
   session.send('Sorry, I did not understand \'%s\'. Type \'help\' if you need assistance.', session.message.text);
@@ -42,51 +42,6 @@ bot.recognizer(recognizer);
 bot.dialog('SearchComputerGame', [
   function(session, args, next) {
     session.send('Welcome to the Games finder! What kind of game would you like to find?');
-
-    // try extracting entities
-    //     var cityEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'builtin.geography.city');
-    //     var airportEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'AirportCode');
-    //     if (cityEntity) {
-    //         // city entity detected, continue to next step
-    //         session.dialogData.searchType = 'city';
-    //         next({ response: cityEntity.entity });
-    //     } else if (airportEntity) {
-    //         // airport entity detected, continue to next step
-    //         session.dialogData.searchType = 'airport';
-    //         next({ response: airportEntity.entity });
-    //     } else {
-    //         // no entities detected, ask user for a destination
-    //         builder.Prompts.text(session, 'Please enter your destination');
-    //     }
-    // },
-    // function (session, results) {
-    //     var destination = results.response;
-    //
-    //     var message = 'Looking for hotels';
-    //     if (session.dialogData.searchType === 'airport') {
-    //         message += ' near %s airport...';
-    //     } else {
-    //         message += ' in %s...';
-    //     }
-    //
-    //     session.send(message, destination);
-    //
-    //     // Async search
-    //     Store
-    //         .searchHotels(destination)
-    //         .then(function (hotels) {
-    //             // args
-    //             session.send('I found %d hotels:', hotels.length);
-    //
-    //             var message = new builder.Message()
-    //                 .attachmentLayout(builder.AttachmentLayout.carousel)
-    //                 .attachments(hotels.map(hotelAsAttachment));
-    //
-    //             session.send(message);
-    //
-    //             // End
-    //             session.endDialog();
-    //         });
   }
 ]).triggerAction({
   matches: 'SearchComputerGame',
@@ -182,9 +137,7 @@ function getGenreGames(genre, result) {
 
     });
 }
-
 // Helpers
-
 function gameAsAttachment(game) {
 
   return new builder.HeroCard()
@@ -198,24 +151,4 @@ function gameAsAttachment(game) {
       .type('openUrl')
       .value(game.link)
     ]);
-}
-
-function hotelAsAttachment(hotel) {
-  return new builder.HeroCard()
-    .title(hotel.name)
-    .subtitle('%d stars. %d reviews. From $%d per night.', hotel.rating, hotel.numberOfReviews, hotel.priceStarting)
-    .images([new builder.CardImage().url(hotel.image)])
-    .buttons([
-      new builder.CardAction()
-      .title('More details')
-      .type('openUrl')
-      .value('https://www.bing.com/search?q=hotels+in+' + encodeURIComponent(hotel.location))
-    ]);
-}
-
-function reviewAsAttachment(review) {
-  return new builder.ThumbnailCard()
-    .title(review.title)
-    .text(review.text)
-    .images([new builder.CardImage().url(review.image)]);
 }
