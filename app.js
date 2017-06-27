@@ -10,7 +10,8 @@ var cheerio = require('cheerio');
 var express        = require('express'),
     bodyParser     = require('body-parser'),
     http           = require('http'),
-    app            = express();
+    app            = express(),
+    token          = 'EAACasJmyVHoBAFKXrYUcJEYMHdI9pyHdZCbWMxuDTqIltiZApF9dPfYFD2IirC9FFiwldCgZBaerJqFn4GXBAjZA5TyF7q8Iv8QiBhQZCQEHtcLwCDaMQfQrgvlbnWdPM7UEYeoYgZBZC0xNjjud9k8WMLiA91ml3wFUPOdaZCQNB6RJtvF9KOqA';
 var gamesArray = [];
 
 var Game = function() {
