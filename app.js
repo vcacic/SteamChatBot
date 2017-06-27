@@ -49,11 +49,6 @@ app.use(bodyParser.json());
 // set port
 app.set('port', 80);
 
-// create a health check endpoint
-app.get('/health', function(req, res) {
-  res.send('okay');
-});
-
 app.post('/fb',  function(req,res){
   res.send(req.body);
 });
@@ -65,7 +60,7 @@ http.createServer(app).listen(app.get('port'), function(){
 
 app.post('/api/messages', connector.listen());
 
-app.get('/fb', function(req, res) {
+app.get('/', function(req, res) {
   if (req.query['hub.verify_token'] === 'st34m_cl0v3r_t0k3n') {
      res.send(req.query['hub.challenge']);
    } else {
