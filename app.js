@@ -7,6 +7,10 @@ var Store = require('./store');
 var spellService = require('./spell-service');
 var rp = require('request-promise');
 var cheerio = require('cheerio');
+var express        = require('express'),
+    bodyParser     = require('body-parser'),
+    http           = require('http'),
+    app            = express();
 var gamesArray = [];
 
 var Game = function() {
@@ -17,21 +21,52 @@ var Game = function() {
   this.tags = null;
 };
 
-// Setup Restify Server
-var server = restify.createServer();
-server.use(restify.bodyParser());
-server.listen(process.env.port || process.env.PORT || 80, function() {
-  console.log('%s listening to %s', server.name, server.url);
-});
 // Create connector and listen for messages
 var connector = new builder.ChatConnector({
   appId: process.env.MICROSOFT_APP_ID,
   appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
- server.post('/api/messages', connector.listen());
- server.get('/webhook/', function(req, res) {
-   console.log(req);
-  if (req.query['hub.verify_token'] === 'st34m_cl0v3r_t0k3n') {
+
+// Setup Restify Server
+// var server = restify.createServer();
+// server.use(restify.bodyParser());
+// server.listen(process.env.port || process.env.PORT || 80, function() {
+//   console.log('%s listening to %s', server.name, server.url);
+// });
+//
+//  server.post('/api/messages', connector.listen());
+//  server.get('/webhook/', function(req, res) {
+//    console.log(req);
+//   if (req.query['hub.verify_token'] === 'st34m_cl0v3r_t0k3n') {
+//      res.send(req.query['hub.challenge']);
+//    } else {
+//      res.send('Error, wrong validation token');
+//    }
+// });
+
+app.use(bodyParser.json());
+
+// set port
+app.set('port', 80);
+
+// create a health check endpoint
+app.get('/health', function(req, res) {
+  res.send('okay');
+});
+
+app.post('/fb',  function(req,res){
+  res.send(req.body);
+});
+
+// start the server
+http.createServer(app).listen(app.get('port'), function(){
+  console.log('Express server listening on port ' + app.get('port'));
+});
+
+app.post('/api/messages', connector.listen());
+
+app.get('/fb', function(req, res) {
+  if (req.query['hub.verify_token'] === 'abc') {
      res.send(req.query['hub.challenge']);
    } else {
      res.send('Error, wrong validation token');
