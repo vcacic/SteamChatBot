@@ -66,7 +66,7 @@ http.createServer(app).listen(app.get('port'), function(){
 app.post('/api/messages', connector.listen());
 
 app.get('/fb', function(req, res) {
-  if (req.query['hub.verify_token'] === 'abc') {
+  if (req.query['hub.verify_token'] === 'st34m_cl0v3r_t0k3n') {
      res.send(req.query['hub.challenge']);
    } else {
      res.send('Error, wrong validation token');
