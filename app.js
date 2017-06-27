@@ -7,11 +7,12 @@ var Store = require('./store');
 var spellService = require('./spell-service');
 var rp = require('request-promise');
 var cheerio = require('cheerio');
-var express        = require('express'),
-    bodyParser     = require('body-parser'),
-    http           = require('http'),
-    app            = express(),
-    token          = 'EAACasJmyVHoBAFKXrYUcJEYMHdI9pyHdZCbWMxuDTqIltiZApF9dPfYFD2IirC9FFiwldCgZBaerJqFn4GXBAjZA5TyF7q8Iv8QiBhQZCQEHtcLwCDaMQfQrgvlbnWdPM7UEYeoYgZBZC0xNjjud9k8WMLiA91ml3wFUPOdaZCQNB6RJtvF9KOqA';
+var express = require('express'),
+  bodyParser = require('body-parser'),
+  http = require('http'),
+  app = express(),
+  request = require('request'),
+  token = 'EAACasJmyVHoBAFKXrYUcJEYMHdI9pyHdZCbWMxuDTqIltiZApF9dPfYFD2IirC9FFiwldCgZBaerJqFn4GXBAjZA5TyF7q8Iv8QiBhQZCQEHtcLwCDaMQfQrgvlbnWdPM7UEYeoYgZBZC0xNjjud9k8WMLiA91ml3wFUPOdaZCQNB6RJtvF9KOqA';
 var gamesArray = [];
 
 var Game = function() {
@@ -50,12 +51,8 @@ app.use(bodyParser.json());
 // set port
 app.set('port', 80);
 
-app.post('/fb',  function(req,res){
-  res.send(req.body);
-});
-
 // start the server
-http.createServer(app).listen(app.get('port'), function(){
+http.createServer(app).listen(app.get('port'), function() {
   console.log('Express server listening on port ' + app.get('port'));
 });
 
@@ -63,11 +60,43 @@ app.post('/api/messages', connector.listen());
 
 app.get('/', function(req, res) {
   if (req.query['hub.verify_token'] === 'st34m_cl0v3r_t0k3n') {
-     res.send(req.query['hub.challenge']);
-   } else {
-     res.send('Error, wrong validation token');
-   }
+    res.send(req.query['hub.challenge']);
+  } else {
+    res.send('Error, wrong validation token');
+  }
 });
+
+app.messageHandler = function(j, cb) {
+  var data = {
+    "recipient": {
+      "id": j.entry[0].messaging[0].sender.id
+    },
+    "message": {
+      "text": j.entry[0].messaging[0].message.text
+    }
+  };
+  var reqObj = {
+    url: 'https://graph.facebook.com/v2.6/me/messages',
+    qs: {
+      access_token: token
+    },
+    method: 'POST',
+    json: data
+  };
+
+  console.log(JSON.stringify(reqObj));
+  request(reqObj, function(error, response, body) {
+    if (error) {
+      console.log('Error sending message: ', JSON.stringify(error));
+      cb(false);
+    } else if (response.body.error) {
+      console.log("API Error: " + JSON.stringify(response.body.error));
+      cb(false);
+    } else {
+      cb(true);
+    }
+  });
+};
 
 //server.post('/fb', connector.listen());
 
@@ -96,7 +125,7 @@ bot.dialog('FindGamesOfGenre', [
     var genreEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'Genre');
     session.send('We are analyzing your message: \'%s\'', genreEntity.entity);
 
-    getGenreGames(genreEntity.entity,function(data){
+    getGenreGames(genreEntity.entity, function(data) {
       if (data.length > 0) {
         session.send('Look at this %s games:', genreEntity.entity);
         var message = new builder.Message()
@@ -140,7 +169,7 @@ if (process.env.IS_SPELL_CORRECTION_ENABLED === 'true') {
 }
 
 function getGenreGames(genre, result) {
-  var url = 'http://store.steampowered.com/tag/en/' + genre +'#p=0&tab=TopSellers';
+  var url = 'http://store.steampowered.com/tag/en/' + genre + '#p=0&tab=TopSellers';
   console.log(url);
   rp(url)
     .then(function(htmlString) {
@@ -172,7 +201,7 @@ function getGenreGames(genre, result) {
     })
     .catch(function(err) {
       // Crawling failed
-      if(err){
+      if (err) {
         // result(gamesArray);
       }
 
