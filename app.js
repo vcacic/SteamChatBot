@@ -59,6 +59,7 @@ http.createServer(app).listen(app.get('port'), function() {
 app.post('/api/messages', connector.listen());
 
 app.get('/', function(req, res) {
+  console.log(JSON.stringify(req.body));
   if (req.query['hub.verify_token'] === 'st34m_cl0v3r_t0k3n') {
     res.send(req.query['hub.challenge']);
   } else {
@@ -66,24 +67,32 @@ app.get('/', function(req, res) {
   }
 });
 
-app.messageHandler = function(j, cb) {
+app.post('/', function(req, res){
+  var id = req.body.entry[0].messaging[0].sender.id;
+  var text = req.body.entry[0].messaging[0].message.text;
+  console.log(JSON.stringify(req.body));
+  app.speechHandler(text, id, function(speech){
+    app.messageHandler(speech, id, function(result){
+      console.log("Async Handled: " + result);
+    });
+  });
+  res.send(req.body);
+});
+app.messageHandler = function(text, id, cb) {
   var data = {
-    "recipient": {
-      "id": j.entry[0].messaging[0].sender.id
+    "recipient":{
+    	"id":id
     },
-    "message": {
-      "text": j.entry[0].messaging[0].message.text
+    "message":{
+    	"text":text
     }
   };
   var reqObj = {
     url: 'https://graph.facebook.com/v2.6/me/messages',
-    qs: {
-      access_token: token
-    },
+    qs: {access_token:token},
     method: 'POST',
     json: data
   };
-
   console.log(JSON.stringify(reqObj));
   request(reqObj, function(error, response, body) {
     if (error) {
@@ -92,13 +101,12 @@ app.messageHandler = function(j, cb) {
     } else if (response.body.error) {
       console.log("API Error: " + JSON.stringify(response.body.error));
       cb(false);
-    } else {
+    } else{
       cb(true);
     }
   });
 };
 
-//server.post('/fb', connector.listen());
 
 var bot = new builder.UniversalBot(connector, function(session) {
   session.send('Sorry, I did not understand \'%s\'. Type \'help\' if you need assistance.', session.message.text);
