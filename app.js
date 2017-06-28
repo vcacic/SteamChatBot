@@ -107,7 +107,6 @@ app.messageHandler = function(text, id, cb) {
   });
 };
 
-
 var bot = new builder.UniversalBot(connector, function(session) {
   session.send('Sorry, I did not understand \'%s\'. Type \'help\' if you need assistance.', session.message.text);
 });
