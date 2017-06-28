@@ -71,9 +71,6 @@ app.post('/', function(req, res) {
   var id = req.body.entry[0].messaging[0].sender.id;
   var text = req.body.entry[0].messaging[0].message.text;
   console.log(req);
-  app.messageHandler(speech, id, function(result) {
-    console.log("Async Handled: " + result);
-  });
   res.send(req.body);
 });
 app.messageHandler = function(text, id, cb) {
