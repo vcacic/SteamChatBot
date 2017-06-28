@@ -59,7 +59,7 @@ http.createServer(app).listen(app.get('port'), function() {
 app.post('/api/messages', connector.listen());
 
 app.get('/', function(req, res) {
-  console.log(JSON.stringify(req.body));
+  console.log(req);
   if (req.query['hub.verify_token'] === 'st34m_cl0v3r_t0k3n') {
     res.send(req.query['hub.challenge']);
   } else {
@@ -70,7 +70,7 @@ app.get('/', function(req, res) {
 app.post('/', function(req, res) {
   var id = req.body.entry[0].messaging[0].sender.id;
   var text = req.body.entry[0].messaging[0].message.text;
-  console.log(JSON.stringify(req.body));
+  console.log(req);
   app.messageHandler(speech, id, function(result) {
     console.log("Async Handled: " + result);
   });
