@@ -67,29 +67,29 @@ app.get('/', function(req, res) {
   }
 });
 
-app.post('/', function(req, res){
+app.post('/', function(req, res) {
   var id = req.body.entry[0].messaging[0].sender.id;
   var text = req.body.entry[0].messaging[0].message.text;
   console.log(JSON.stringify(req.body));
-  app.speechHandler(text, id, function(speech){
-    app.messageHandler(speech, id, function(result){
-      console.log("Async Handled: " + result);
-    });
+  app.messageHandler(speech, id, function(result) {
+    console.log("Async Handled: " + result);
   });
   res.send(req.body);
 });
 app.messageHandler = function(text, id, cb) {
   var data = {
-    "recipient":{
-    	"id":id
+    "recipient": {
+      "id": id
     },
-    "message":{
-    	"text":text
+    "message": {
+      "text": text
     }
   };
   var reqObj = {
     url: 'https://graph.facebook.com/v2.6/me/messages',
-    qs: {access_token:token},
+    qs: {
+      access_token: token
+    },
     method: 'POST',
     json: data
   };
@@ -101,7 +101,7 @@ app.messageHandler = function(text, id, cb) {
     } else if (response.body.error) {
       console.log("API Error: " + JSON.stringify(response.body.error));
       cb(false);
-    } else{
+    } else {
       cb(true);
     }
   });
