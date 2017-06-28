@@ -29,23 +29,6 @@ var connector = new builder.ChatConnector({
   appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
 
-// Setup Restify Server
-// var server = restify.createServer();
-// server.use(restify.bodyParser());
-// server.listen(process.env.port || process.env.PORT || 80, function() {
-//   console.log('%s listening to %s', server.name, server.url);
-// });
-//
-//  server.post('/api/messages', connector.listen());
-//  server.get('/webhook/', function(req, res) {
-//    console.log(req);
-//   if (req.query['hub.verify_token'] === 'st34m_cl0v3r_t0k3n') {
-//      res.send(req.query['hub.challenge']);
-//    } else {
-//      res.send('Error, wrong validation token');
-//    }
-// });
-
 app.use(bodyParser.json());
 
 // set port
@@ -56,7 +39,9 @@ http.createServer(app).listen(app.get('port'), function() {
   console.log('Express server listening on port ' + app.get('port'));
 });
 
-app.post('/api/messages', connector.listen());
+app.post('/api/messages', connector.listen(),function (req, res) {
+  console.log('pero');
+});
 
 app.get('/', function(req, res) {
   if (req.query['hub.verify_token'] === 'st34m_cl0v3r_t0k3n') {
@@ -150,28 +135,11 @@ bot.dialog('FindGamesOfGenre', [
 });
 
 bot.dialog('Help', function(session) {
+  console.log(session);
   session.endDialog('Hi! Welcome to SteamGamesBot Try asking me things like \'search rpg\', \'search adventure\' or \'search platformer\'');
 }).triggerAction({
   matches: 'Help'
 });
-
-// Spell Check
-if (process.env.IS_SPELL_CORRECTION_ENABLED === 'true') {
-  bot.use({
-    botbuilder: function(session, next) {
-      spellService
-        .getCorrectedText(session.message.text)
-        .then(function(text) {
-          session.message.text = text;
-          next();
-        })
-        .catch(function(error) {
-          console.error(error);
-          next();
-        });
-    }
-  });
-}
 
 function getGenreGames(genre, result) {
   var url = 'http://store.steampowered.com/tag/en/' + genre + '#p=0&tab=TopSellers';
