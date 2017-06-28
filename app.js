@@ -54,8 +54,6 @@ app.get('/', function(req, res) {
 app.post('/', function(req, res) {
   var id = req.body.entry[0].messaging[0].sender.id;
   var text = req.body.entry[0].messaging[0].message.text;
-
-  console.log("send message", req.body);
   app.messageHandler(text, id, function(result){
         console.log("Async Handled: " + result);
       });
