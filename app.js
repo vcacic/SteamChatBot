@@ -39,56 +39,54 @@ http.createServer(app).listen(app.get('port'), function() {
   console.log('Express server listening on port ' + app.get('port'));
 });
 
-app.post('/api/messages', connector.listen(),function (req, res) {
-  console.log('pero');
-});
+app.post('/', connector.listen());
 
-app.get('/', function(req, res) {
-  if (req.query['hub.verify_token'] === 'st34m_cl0v3r_t0k3n') {
-    res.send(req.query['hub.challenge']);
-  } else {
-    res.send('Error, wrong validation token');
-  }
-});
-
-app.post('/', function(req, res) {
-  var id = req.body.entry[0].messaging[0].sender.id;
-  var text = req.body.entry[0].messaging[0].message.text;
-  app.messageHandler(text, id, function(result){
-        console.log("Async Handled: " + result);
-      });
-  res.send(req.body);
-});
-app.messageHandler = function(text, id, cb) {
-  var data = {
-    "recipient": {
-      "id": id
-    },
-    "message": {
-      "text": text
-    }
-  };
-  var reqObj = {
-    url: 'https://graph.facebook.com/v2.6/me/messages',
-    qs: {
-      access_token: token
-    },
-    method: 'POST',
-    json: data
-  };
-  console.log(JSON.stringify(reqObj));
-  request(reqObj, function(error, response, body) {
-    if (error) {
-      console.log('Error sending message: ', JSON.stringify(error));
-      cb(false);
-    } else if (response.body.error) {
-      console.log("API Error: " + JSON.stringify(response.body.error));
-      cb(false);
-    } else {
-      cb(true);
-    }
-  });
-};
+// app.get('/', function(req, res) {
+//   if (req.query['hub.verify_token'] === 'st34m_cl0v3r_t0k3n') {
+//     res.send(req.query['hub.challenge']);
+//   } else {
+//     res.send('Error, wrong validation token');
+//   }
+// });
+//
+// app.post('/', function(req, res) {
+//   var id = req.body.entry[0].messaging[0].sender.id;
+//   var text = req.body.entry[0].messaging[0].message.text;
+//   app.messageHandler(text, id, function(result){
+//         console.log("Async Handled: " + result);
+//       });
+//   res.send(req.body);
+// });
+// app.messageHandler = function(text, id, cb) {
+//   var data = {
+//     "recipient": {
+//       "id": id
+//     },
+//     "message": {
+//       "text": text
+//     }
+//   };
+//   var reqObj = {
+//     url: 'https://graph.facebook.com/v2.6/me/messages',
+//     qs: {
+//       access_token: token
+//     },
+//     method: 'POST',
+//     json: data
+//   };
+//   console.log(JSON.stringify(reqObj));
+//   request(reqObj, function(error, response, body) {
+//     if (error) {
+//       console.log('Error sending message: ', JSON.stringify(error));
+//       cb(false);
+//     } else if (response.body.error) {
+//       console.log("API Error: " + JSON.stringify(response.body.error));
+//       cb(false);
+//     } else {
+//       cb(true);
+//     }
+//   });
+// };
 
 var bot = new builder.UniversalBot(connector, function(session) {
   session.send('Sorry, I did not understand \'%s\'. Type \'help\' if you need assistance.', session.message.text);
