@@ -39,7 +39,7 @@ http.createServer(app).listen(app.get('port'), function() {
   console.log('Express server listening on port ' + app.get('port'));
 });
 
-app.post('/', connector.listen());
+app.post('/api/messages', connector.listen());
 
 // app.get('/', function(req, res) {
 //   if (req.query['hub.verify_token'] === 'st34m_cl0v3r_t0k3n') {
