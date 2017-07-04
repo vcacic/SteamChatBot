@@ -32,7 +32,7 @@ var connector = new builder.ChatConnector({
 app.use(bodyParser.json());
 
 // set port
-app.set('port', 80);
+app.set('port', 8080);
 
 // start the server
 http.createServer(app).listen(app.get('port'), function() {
