@@ -24,16 +24,22 @@ var Game = function() {
 };
 
 // Create connector and listen for messages
-var server = restify.createServer();
-server.listen(80, function () {
-console.log('%s listening to %s', server.name, server.url);
-});
-// Create connector and listen for messages
 var connector = new builder.ChatConnector({
-    appId: process.env.MICROSOFT_APP_ID,
-    appPassword: process.env.MICROSOFT_APP_PASSWORD
+  appId: process.env.MICROSOFT_APP_ID,
+  appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
-server.post('/api/messages', connector.listen());
+
+app.use(bodyParser.json());
+
+// set port
+app.set('port', 80);
+
+// start the server
+http.createServer(app).listen(app.get('port'), function() {
+  console.log('Express server listening on port ' + app.get('port'));
+});
+
+app.post('/api/messages', connector.listen());
 
 // app.get('/', function(req, res) {
 //   if (req.query['hub.verify_token'] === 'st34m_cl0v3r_t0k3n') {
@@ -102,9 +108,9 @@ bot.dialog('SearchComputerGame', [
   }
 });
 
-bot.dialog('FindGamesOfGenre', [
+bot.dialog('FindGames', [
   function(session, args, next) {
-    var genreEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'Genre');
+    var genreEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'Game');
     session.send('We are analyzing your message: \'%s\'', genreEntity.entity);
 
     getGenreGames(genreEntity.entity, function(data) {
@@ -120,7 +126,7 @@ bot.dialog('FindGamesOfGenre', [
     });
   }
 ]).triggerAction({
-  matches: 'FindGamesOfGenre',
+  matches: 'FindGames',
   onInterrupted: function(session) {
     session.send('Querry genre canceled');
   }
